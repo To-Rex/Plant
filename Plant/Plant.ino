@@ -151,6 +151,7 @@ void loop(){
         return;
     }
     Firebase.set(firebaseData, "/plant/led", false);
+    digitalWrite(Rele02, HIGH);
 }
 
 void TimeWork(int startHour, int startMinute, int TimeWatering){

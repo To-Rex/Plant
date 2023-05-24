@@ -42,8 +42,8 @@ void setup()
     Serial.begin(115200);
 
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-   //Serial.print("Connecting to ");
-    //Serial.print(WIFI_SSID);
+    Serial.print("Connecting to...");
+    Serial.print(WIFI_SSID);
 
     lcd.init();
     lcd.backlight();
@@ -57,7 +57,10 @@ void setup()
         delay(500);
     }
 
+    Serial.println();                  //chop buni-------------------------------------------------------
+    Serial.print("Connected to ");     //chop buni-------------------------------------------------------
     Serial.println(WIFI_SSID);
+    Serial.print("IP Address is : ");  //chop buni-------------------------------------------------------
     Serial.println(WiFi.localIP());
 
     Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
@@ -126,41 +129,56 @@ void loop(){
 
     Firebase.get(firebaseData, "/Usimliklar/usimlik1");
     if (firebaseData.boolData() == true){
-        TimeWork(1,25,10);
+        TimeWork(6,0,780);
+        return;
     }
 
     Firebase.get(firebaseData, "/Usimliklar/usimlik2");
     if (firebaseData.boolData() == true){
-        TimeWork(8,5,10);
+        TimeWork(9,0,900);
+        return;
     }
 
     Firebase.get(firebaseData, "/Usimliklar/usimlik3");
     if (firebaseData.boolData() == true){
-        TimeWork(16,10,10);
+        TimeWork(18,0,1080);
+        return;
     }
 
     Firebase.get(firebaseData, "/Usimliklar/usimlik4");
     if (firebaseData.boolData() == true){
-        TimeWork(22,20,10);
+        TimeWork(12,0,1040);
+        return;
     }
-
+    Firebase.set(firebaseData, "/plant/led", false);
 }
 
 void TimeWork(int startHour, int startMinute, int TimeWatering){
     // Hozirgi soat va minutlar
     time_t now = time(nullptr);
     struct tm *p_tm = localtime(&now);
+
     int currentHour = p_tm->tm_hour;
     int currentMinute = p_tm->tm_min;
+
     // Davomiylikni hisoblash
     int targetTime = startHour * 60 + startMinute;
     int currentTime = currentHour * 60 + currentMinute;
+
+    Serial.print("Maqsadli vaqtni minutda: ");
+    Serial.println(targetTime);
+    Serial.print("Hozirgi vaqtni minutda: ");
+    Serial.println(currentTime);
+
     // Releni 10 minut oralig`ida yoqib turish yoqish/ochish
     if (currentTime >= targetTime && currentTime <= targetTime + TimeWatering){ //mano 3 bu minut agar sizga boshqa minut kerak boladigan bo`lsa shu soatni 60 ga kopaytirsez minut kelib chiqadi shu minutni  3ni orniga yozilsa masala xal
         digitalWrite(Rele02, LOW);
+        Firebase.set(firebaseData, "/plant/led", true);
         Serial.println(currentTime);
     }else{
         digitalWrite(Rele02, HIGH);
+        Firebase.set(firebaseData, "/plant/led", false);
         Serial.println(currentTime);
     }
+
 }
